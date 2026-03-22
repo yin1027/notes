@@ -14,6 +14,32 @@
 
 ### 2026-03-22
 
+#### 1. social-auto-upload 修复: publish_date=None 导致 strftime 报错
+
+**问题**: 使用 CLI 上传视频时，立即发布（无定时）会失败：
+```
+Error uploading video: 'NoneType' object has no attribute 'strftime'
+```
+
+**根因**: `uploader/douyin_uploader/main.py` 第 201 行条件判断错误：
+```python
+# 错误写法
+if self.publish_date != 0:  # None != 0 为 True，会执行后续代码
+    await self.set_schedule_time_douyin(page, self.publish_date)  # 传入 None 导致 strftime 报错
+```
+
+**修复**:
+```python
+# 正确写法
+if self.publish_date is not None:  # 只有非 None 才执行定时发布逻辑
+```
+
+**经验**: Python 中 `None` 与 `0` 的比较应使用 `is None` / `is not None`，而非 `!= 0` / `== 0`。
+
+---
+
+### 2026-03-22
+
 #### 1. Skill 包安装位置
 - **路径**: `C:\Users\尹兴\.claude\skills`
 - **包含的 skills**:
